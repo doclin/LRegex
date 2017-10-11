@@ -1,6 +1,4 @@
-
-
-Regex::Regex() {}
+#include "regex.h"
 
 
 Regex::Regex(const char* r)
@@ -14,6 +12,9 @@ void Regex::compile()
 {
     DFA = new State();
     current = &(DFA -> next1);
+    State** head = current;
+    State** end[MAX_OR];
+    size_t end_count = 0;
 
     while(regex[index] != '\0')
     {
@@ -62,6 +63,18 @@ void Regex::speDFA()
         default: index--;
     }
 }
+
+
+void Regex::splitDFA()
+{
+
+}
+
+
+
+
+
+
 
 void Regex::questionDFA(State** t)
 {

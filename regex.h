@@ -1,7 +1,10 @@
 #ifndef _REGEX_H_
 #define _REGEX_H_
 
+#include <iostream>
 #include <stack>
+
+const size_t MAX_OR = 16;
 
 /*
 flag:
@@ -49,6 +52,7 @@ private:
     void speDFA();
     void charsDFA();
     void groupDFA();
+    void splitDFA();
     void singleCharDFA();
     void questionDFA(State** t);
     void starDFA(State** t);
