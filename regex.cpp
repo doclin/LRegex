@@ -16,7 +16,7 @@ void Regex::compile()
     State** end[MAX_OR];
     size_t end_count = 0;
 
-    while(regex[index] != '\0')
+    while(regex[index] != '\0' && re_compile)
     {
         if(regex[index] == '\\')
             speDFA();
@@ -25,10 +25,13 @@ void Regex::compile()
         else if(regex[index] == '(')
             groupDFA();
         else if(regex[index] == '|')
-            splitDFA();
+            splitDFA(head, end, end_count);
         else
             singleCharDFA();
+        index++;
     }
+    if(!re_compile)
+        return;
 }
 
 void Regex::speDFA()
@@ -51,6 +54,7 @@ void Regex::speDFA()
         case ')': *current = new State(')'); current = &((*current) -> next1); break;
         case '[': *current = new State('['); current = &((*current) -> next1); break;
         case ']': *current = new State(']'); current = &((*current) -> next1); break;
+        case '-': *current = new State('-'); current = &((*current) -> next1); break;
         case '|': *current = new State('|'); current = &((*current) -> next1); break;
         default: re_compile = false; return;
     }
@@ -65,9 +69,96 @@ void Regex::speDFA()
 }
 
 
-void Regex::splitDFA()
+void Regex::charsDFA()
 {
+    State** tmp = current;
+    index++;
+    while(regex[index] != '\0' && re_compile)
+    {
+        if(regex[index] == '\\')
+            speDFA();
+        else if(regex[index] == '[')
+            charsDFA();
+        else if(regex[index] == '(')
+            groupDFA();
+        else if(regex[index] == ')')
+            break;
+        else if(regex[index] == '|')
+            splitDFA(head, end, end_count);
+        else
+            singleCharDFA();
+        index++;
+    }
+}
 
+
+
+
+void Regex::groupDFA()
+{
+    State** head = current;
+    State** end[MAX_OR];
+    size_t end_count = 0;
+
+    index++;
+    while(regex[index] != '\0' && re_compile)
+    {
+        if(regex[index] == '\\')
+            speDFA();
+        else if(regex[index] == '[')
+            charsDFA();
+        else if(regex[index] == '(')
+            groupDFA();
+        else if(regex[index] == ')')
+            break;
+        else if(regex[index] == '|')
+            splitDFA(head, end, end_count);
+        else
+            singleCharDFA();
+        index++;
+    }
+    if(!re_compile)
+        return;
+    if(regex[index] != ')')
+    {
+        re_compile = false;
+        return;
+    }
+    if(end_count != 0)
+    {
+        *current = new State();
+        for(int i=0; i<end_count; i++)
+            *end[i] = *current;
+        current = &((*current) -> next1);
+    }
+    index++;
+    switch(regex[index])
+    {
+        case '?': questionDFA(head); break;
+        case '*': starDFA(head); break;
+        case '+': plusDFA(head); break;
+        default: index--;
+    }
+}
+
+
+
+
+
+
+void Regex::splitDFA(State** head, State*** end, size_t& end_count)
+{
+    if(end_count == MAX_OR)
+    {
+        re_compile = false;
+        return;
+    }
+    State* tmp = *head;
+    *head = new State();
+    (*head) -> next1 = tmp;
+    end[end_count] = current;
+    end_count++;
+    current = &((*head) -> next2);
 }
 
 

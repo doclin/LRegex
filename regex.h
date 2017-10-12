@@ -52,7 +52,7 @@ private:
     void speDFA();
     void charsDFA();
     void groupDFA();
-    void splitDFA();
+    void splitDFA(State** head, State*** end, size_t& end_count);
     void singleCharDFA();
     void questionDFA(State** t);
     void starDFA(State** t);
