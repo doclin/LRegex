@@ -56,6 +56,7 @@ void Regex::speDFA()
         case ']': *current = new State(']'); current = &((*current) -> next1); break;
         case '-': *current = new State('-'); current = &((*current) -> next1); break;
         case '|': *current = new State('|'); current = &((*current) -> next1); break;
+        case '\\': *current = new State('\\'); current = &((*current) -> next1); break;
         default: re_compile = false; return;
     }
     index++;
