@@ -1,5 +1,6 @@
 #include "regex.h"
 
+Regex::Regex() : regex(NULL), DFA(NULL), current(NULL), index(0), re_compile(false) {}
 
 Regex::Regex(const char* r)
     : regex(r), DFA(NULL), current(NULL), index(0), re_compile(true)
@@ -7,6 +8,7 @@ Regex::Regex(const char* r)
     compile();
 }
 
+Regex::~Regex() {}
 
 void Regex::compile()
 {
@@ -32,8 +34,6 @@ void Regex::compile()
             singleCharDFA();
         index++;
     }
-    if(!re_compile)
-        return;
 }
 
 void Regex::speDFA()
@@ -70,7 +70,6 @@ void Regex::speDFA()
         default: index--;
     }
 }
-
 
 void Regex::charsDFA()
 {
@@ -139,7 +138,7 @@ void Regex::charsDFA()
             re_compile = false;
         index++;
     }
-    if(!recompile || regex[index]!=']' || itmp==0)
+    if(!re_compile || regex[index]!=']' || itmp==0)
     {
         delete [] chs;
         return;
@@ -156,9 +155,6 @@ void Regex::charsDFA()
         default: index--;
     }
 }
-
-
-
 
 void Regex::groupDFA()
 {
@@ -207,11 +203,6 @@ void Regex::groupDFA()
     }
 }
 
-
-
-
-
-
 void Regex::splitDFA(State** head, State*** end, size_t& end_count)
 {
     if(end_count == MAX_OR)
@@ -227,17 +218,24 @@ void Regex::splitDFA(State** head, State*** end, size_t& end_count)
     current = &((*head) -> next2);
 }
 
-
-
 void Regex::singleCharDFA()
 {
     State** tmp = current;
     if(regex[index] == '.')
+        *current = new State(1001);
+    else
+        *current = new State(regex[index]);
+    current = &((*current) -> next1);
+
+    index++;
+    switch(regex[index])
+    {
+        case '?': questionDFA(tmp); break;
+        case '*': starDFA(tmp); break;
+        case '+': plusDFA(tmp); break;
+        default: index--;
+    } 
 }
-
-
-
-
 
 void Regex::questionDFA(State** t)
 {
