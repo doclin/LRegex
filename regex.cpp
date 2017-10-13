@@ -26,6 +26,8 @@ void Regex::compile()
             groupDFA();
         else if(regex[index] == '|')
             splitDFA(head, end, end_count);
+        else if(regex[index]==')' || regex[index]=='*' || regex[index]=='+' || regex[index]=='-' || regex[index]=='?' || regex[index]==']')
+            re_compile = false;
         else
             singleCharDFA();
         index++;
@@ -73,22 +75,85 @@ void Regex::speDFA()
 void Regex::charsDFA()
 {
     State** tmp = current;
+    char* chs = new char[128];
+    size_t itmp = 0;
+
     index++;
     while(regex[index] != '\0' && re_compile)
     {
-        if(regex[index] == '\\')
-            speDFA();
-        else if(regex[index] == '[')
-            charsDFA();
-        else if(regex[index] == '(')
-            groupDFA();
-        else if(regex[index] == ')')
+        if(regex[index] == '\\' || !is_escape(regex[index]))
+        {
+            char begin, end;
+
+            if(regex[index] == '\\')
+            {
+                index++;
+                if(is_escape(regex[index]))
+                    begin = regex[index];
+                else
+                    { re_compile = false; break; }
+            }
+            else
+                begin = regex[index];
+
+            if(regex[index+1] == '-')
+            {
+                if(regex[index+2] == '\\')
+                {
+                    if(is_escape(regex[index+3]))
+                    {
+                        end = regex[index+3];
+                        index += 3;
+                    }
+                    else
+                        { re_compile = false; break; }
+                }
+                else if(is_escape(regex[index+2]))
+                    { re_compile = false; break; }
+                else
+                {
+                    end = regex[index+2];
+                    index += 2;
+                }
+
+                if(end >= begin && itmp + end - begin < 127)
+                {
+                    for(int i=begin; i<=end; i++)
+                    {
+                        chs[itmp] = (char)i;
+                        itmp++;
+                    }
+                }
+                else
+                    { re_compile = false; break; }
+            }
+            else
+            {
+                chs[itmp] = begin;
+                itmp++;
+            }
+        }
+        else if(regex[index] == ']')
             break;
-        else if(regex[index] == '|')
-            splitDFA(head, end, end_count);
         else
-            singleCharDFA();
+            re_compile = false;
         index++;
+    }
+    if(!recompile || regex[index]!=']' || itmp==0)
+    {
+        delete [] chs;
+        return;
+    }
+    chs[itmp] = '\0';
+    *current = new State(1000, chs);
+    current = &((*current) -> next1);
+    index++;
+    switch(regex[index])
+    {
+        case '?': questionDFA(tmp); break;
+        case '*': starDFA(tmp); break;
+        case '+': plusDFA(tmp); break;
+        default: index--;
     }
 }
 
@@ -164,12 +229,23 @@ void Regex::splitDFA(State** head, State*** end, size_t& end_count)
 
 
 
+void Regex::singleCharDFA()
+{
+    State** tmp = current;
+    if(regex[index] == '.')
+}
+
 
 
 
 
 void Regex::questionDFA(State** t)
 {
+    if(t == current)
+    {
+        re_compile = false;
+        return;
+    }
     State* tmp = *t;
     *t = new State();
     (*t) -> next1 = tmp;
@@ -179,6 +255,11 @@ void Regex::questionDFA(State** t)
 
 void Regex::starDFA(State** t)
 {
+    if(t == current)
+    {
+        re_compile = false;
+        return;
+    }
     State* tmp = *t;
     *t = new State();
     (*t) -> next1 = tmp;
@@ -188,7 +269,21 @@ void Regex::starDFA(State** t)
 
 void Regex::plusDFA(State** t)
 {
+    if(t == current)
+    {
+        re_compile = false;
+        return;
+    }
     *current = new State();
     (*current) -> next1 = *t;
     current = &((*current) -> next2);
+}
+
+bool is_escape(char ch)
+{
+    if(ch=='.' || ch=='?' || ch=='*' || ch=='+' || ch=='(' || ch==')')
+        return true;
+    if(ch=='|' || ch=='[' || ch==']' || ch=='-' || ch=='\\')
+        return true;
+    return false;
 }

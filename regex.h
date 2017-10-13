@@ -57,6 +57,7 @@ private:
     void questionDFA(State** t);
     void starDFA(State** t);
     void plusDFA(State** t);
+    bool is_escape(char ch);
 
 };
 
