@@ -2,7 +2,6 @@
 #define _REGEX_H_
 
 #include <iostream>
-#include <stack>
 
 const size_t MAX_OR = 16;
 
@@ -18,6 +17,7 @@ flag:
 1006:   \w
 1007:   \W
 1100:   e
+777:    ACCEPT
 */
 struct State
 {
@@ -25,9 +25,10 @@ struct State
     char* chs;
     State* next1;
     State* next2;
-    State() : flag(1100), chs(NULL), next1(NULL), next2(NULL) {}
-    State(int f) : flag(f), chs(NULL), next1(NULL), next2(NULL) {}
-    State(int f, char* c) : flag(f), chs(c), next1(NULL), next2(NULL) {}
+    int visit;
+    State() : flag(1100), chs(NULL), next1(NULL), next2(NULL), visit(0) {}
+    State(int f) : flag(f), chs(NULL), next1(NULL), next2(NULL), visit(0) {}
+    State(int f, char* c) : flag(f), chs(c), next1(NULL), next2(NULL), visit(0) {}
     ~State()
     {
         if(chs != NULL)
@@ -41,6 +42,7 @@ public:
     Regex();
     Regex(const char* r);
     bool match(const char* str);
+    bool is_success() { return re_compile; };
     ~Regex();
 private:
     const char* regex;
@@ -48,6 +50,8 @@ private:
     State** current;
     size_t index;
     bool re_compile;
+    void traversal(State* s);
+    //
     void compile();
     void speDFA();
     void charsDFA();
@@ -58,6 +62,10 @@ private:
     void starDFA(State** t);
     void plusDFA(State** t);
     bool is_escape(char ch);
+    //
+    void addState(State* s, State** p, size_t& i, int r);
+    bool is_match(char c, State* s);
+
 };
 
 

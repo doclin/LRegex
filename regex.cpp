@@ -8,7 +8,118 @@ Regex::Regex(const char* r)
     compile();
 }
 
-Regex::~Regex() {}
+
+bool Regex::match(const char* str)
+{
+    int rounds = 1;
+    size_t stri = 0;
+    State* storage1[256];
+    State* storage2[256];
+    State** p1 = storage1;
+    State** p2 = storage2;
+    size_t i1 = 0;
+    size_t i2 = 0;
+
+    addState(DFA, p1, i1, rounds);
+    rounds++;
+    while(str[stri] != '\0')
+    {
+        for(int i=0; i<i1; i++)
+        {
+            if(is_match(str[stri], p1[i]))
+            {
+                if(p1[i]->next1 != NULL)
+                    addState(p1[i]->next1, p2, i2, rounds);
+                if(p1[i]->next2 != NULL)
+                    addState(p1[i]->next2, p2, i2, rounds);
+            }
+        }
+        if(i2 == 0)
+            return false;
+        
+        
+        
+    }
+}
+
+
+void Regex::addState(State* s, State** p, size_t& i, int r)
+{
+    if(s->flag == 1100)
+    {
+        if(s->next1 != NULL)
+            addState(s->next1, p, i, r);
+        if(s->next2 != NULL)
+            addState(s->next2, p, i, r);
+    }
+    else
+    {
+        if(s->visit != r)
+        {
+            s->visit = r;
+            p[i] = s;
+            i++;
+        }
+    }
+}
+
+bool Regex::is_match(char c, State* s)
+{
+    int flag = s->flag;
+    char* chs = s->chs;
+    if(flag < 128){
+        if(c == flag)
+            return true;
+    }
+    else if(flag == 1000){
+        size_t i = 0;
+        while(chs[i] != '\0')
+        {
+            if(c==chs[i])
+                return true;
+            i++;
+        }
+    }
+    else if(flag == 1001)
+        return true;
+    else if(flag == 1002){
+        if(c>='0' && c<='9')
+            return true;
+    }
+    else if(flag == 1003){
+        if(c<'0' || c>'9')
+            return true;
+    }
+    else if(flag == 1004){
+        if(c=='\t' || c=='\r' || c=='\n' || c==' ')
+            return true;
+    }
+    else if(flag == 1005){
+        if(c!='\t' && c!='\r' && c!='\n' && c!=' ')
+            return true;
+    }
+    else if(flag == 1006){
+        if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') || (c=='_'))
+            return true;
+    }
+    else if(flag == 1007){
+        if(!((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') || (c=='_')))
+            return true;
+    }
+    return false;
+}
+
+
+
+
+
+
+
+Regex::~Regex()
+{
+    State* delete_array[256];
+    size_t num = 0;
+}
 
 void Regex::compile()
 {
@@ -34,6 +145,16 @@ void Regex::compile()
             singleCharDFA();
         index++;
     }
+    if(!re_compile)
+        return;
+    if(end_count != 0)
+    {
+        *current = new State();
+        for(int i=0; i<end_count; i++)
+            *end[i] = *current;
+        current = &((*current) -> next1);
+    }
+    *current = new State(777);
 }
 
 void Regex::speDFA()
@@ -141,6 +262,7 @@ void Regex::charsDFA()
     if(!re_compile || regex[index]!=']' || itmp==0)
     {
         delete [] chs;
+        re_compile = false;
         return;
     }
     chs[itmp] = '\0';
@@ -175,6 +297,8 @@ void Regex::groupDFA()
             break;
         else if(regex[index] == '|')
             splitDFA(head, end, end_count);
+        else if(regex[index]=='*' || regex[index]=='+' || regex[index]=='-' || regex[index]=='?' || regex[index]==']')
+            re_compile = false;
         else
             singleCharDFA();
         index++;
@@ -277,7 +401,7 @@ void Regex::plusDFA(State** t)
     current = &((*current) -> next2);
 }
 
-bool is_escape(char ch)
+bool Regex::is_escape(char ch)
 {
     if(ch=='.' || ch=='?' || ch=='*' || ch=='+' || ch=='(' || ch==')')
         return true;
