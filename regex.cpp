@@ -17,8 +17,11 @@ bool Regex::match(const char* str)
     State* storage2[256];
     State** p1 = storage1;
     State** p2 = storage2;
+    State** tmp;
     size_t i1 = 0;
     size_t i2 = 0;
+
+    traversal(DFA);
 
     addState(DFA, p1, i1, rounds);
     rounds++;
@@ -36,10 +39,20 @@ bool Regex::match(const char* str)
         }
         if(i2 == 0)
             return false;
-        
-        
-        
+        tmp = p1;
+        p1 = p2;
+        p2 = tmp;
+        i1 = i2;
+        i2 = 0;
+        rounds++;
+        stri++;
     }
+    for(int j=0; j<i1; j++)
+    {
+        if(p1[j]->flag == 777)
+            return true;
+    }
+    return false;
 }
 
 
@@ -47,6 +60,7 @@ void Regex::addState(State* s, State** p, size_t& i, int r)
 {
     if(s->flag == 1100)
     {
+        s->visit = r;
         if(s->next1 != NULL)
             addState(s->next1, p, i, r);
         if(s->next2 != NULL)
@@ -111,6 +125,33 @@ bool Regex::is_match(char c, State* s)
 
 
 
+void Regex::traversal(State* s)
+{
+    if(s->visit != 0)
+    {
+        s->visit = 0;
+        if(s->next1 != NULL)
+            traversal(s->next1);
+        if(s->next2 != NULL)
+            traversal(s->next2);
+    }
+}
+
+
+void Regex::traversal(State* s, State** a, size_t& i)
+{
+    if(s->visit != -1)
+    {
+        s->visit = -1;
+        a[i] = s;
+        i++;
+        if(s->next1 != NULL)
+            traversal(s->next1, a, i);
+        if(s->next2 != NULL)
+            traversal(s->next2, a, i);
+    }
+
+}
 
 
 
@@ -119,6 +160,9 @@ Regex::~Regex()
 {
     State* delete_array[256];
     size_t num = 0;
+    traversal(DFA, delete_array, num);
+    for(int j=0; j<num; j++)
+        delete delete_array[j];
 }
 
 void Regex::compile()
@@ -201,12 +245,9 @@ void Regex::charsDFA()
     index++;
     while(regex[index] != '\0' && re_compile)
     {
-        if(regex[index] == '\\' || !is_escape(regex[index]))
-        {
+        if(regex[index] == '\\' || !is_escape(regex[index])){
             char begin, end;
-
-            if(regex[index] == '\\')
-            {
+            if(regex[index] == '\\'){
                 index++;
                 if(is_escape(regex[index]))
                     begin = regex[index];
@@ -216,12 +257,9 @@ void Regex::charsDFA()
             else
                 begin = regex[index];
 
-            if(regex[index+1] == '-')
-            {
-                if(regex[index+2] == '\\')
-                {
-                    if(is_escape(regex[index+3]))
-                    {
+            if(regex[index+1] == '-'){
+                if(regex[index+2] == '\\'){
+                    if(is_escape(regex[index+3])){
                         end = regex[index+3];
                         index += 3;
                     }
@@ -230,16 +268,13 @@ void Regex::charsDFA()
                 }
                 else if(is_escape(regex[index+2]))
                     { re_compile = false; break; }
-                else
-                {
+                else{
                     end = regex[index+2];
                     index += 2;
                 }
 
-                if(end >= begin && itmp + end - begin < 127)
-                {
-                    for(int i=begin; i<=end; i++)
-                    {
+                if(end >= begin && itmp + end - begin < 127){
+                    for(int i=begin; i<=end; i++){
                         chs[itmp] = (char)i;
                         itmp++;
                     }
@@ -247,8 +282,7 @@ void Regex::charsDFA()
                 else
                     { re_compile = false; break; }
             }
-            else
-            {
+            else{
                 chs[itmp] = begin;
                 itmp++;
             }
@@ -259,8 +293,7 @@ void Regex::charsDFA()
             re_compile = false;
         index++;
     }
-    if(!re_compile || regex[index]!=']' || itmp==0)
-    {
+    if(!re_compile || regex[index]!=']' || itmp==0){
         delete [] chs;
         re_compile = false;
         return;

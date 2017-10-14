@@ -51,6 +51,7 @@ private:
     size_t index;
     bool re_compile;
     void traversal(State* s);
+    void traversal(State* s, State** a, size_t& i);
     //
     void compile();
     void speDFA();
