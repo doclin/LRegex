@@ -8,9 +8,13 @@ Regex::Regex(const char* r)
     compile();
 }
 
-
 bool Regex::match(const char* str)
 {
+    if(str[0] == '\0')
+        return false;
+    if(!re_compile)
+        return false;
+    
     int rounds = 1;
     size_t stri = 0;
     State* storage1[256];
@@ -27,7 +31,7 @@ bool Regex::match(const char* str)
     rounds++;
     while(str[stri] != '\0')
     {
-        for(int i=0; i<i1; i++)
+        for(size_t i=0; i<i1; i++)
         {
             if(is_match(str[stri], p1[i]))
             {
@@ -47,14 +51,13 @@ bool Regex::match(const char* str)
         rounds++;
         stri++;
     }
-    for(int j=0; j<i1; j++)
+    for(size_t j=0; j<i1; j++)
     {
         if(p1[j]->flag == 777)
             return true;
     }
     return false;
 }
-
 
 void Regex::addState(State* s, State** p, size_t& i, int r)
 {
@@ -123,8 +126,6 @@ bool Regex::is_match(char c, State* s)
     return false;
 }
 
-
-
 void Regex::traversal(State* s)
 {
     if(s->visit != 0)
@@ -136,7 +137,6 @@ void Regex::traversal(State* s)
             traversal(s->next2);
     }
 }
-
 
 void Regex::traversal(State* s, State** a, size_t& i)
 {
@@ -153,20 +153,22 @@ void Regex::traversal(State* s, State** a, size_t& i)
 
 }
 
-
-
-
 Regex::~Regex()
 {
     State* delete_array[256];
     size_t num = 0;
     traversal(DFA, delete_array, num);
-    for(int j=0; j<num; j++)
+    for(size_t j=0; j<num; j++)
         delete delete_array[j];
 }
 
 void Regex::compile()
 {
+    if(regex[0] == '\0')
+    {
+        re_compile = false;
+        return;
+    }
     DFA = new State();
     current = &(DFA -> next1);
     State** head = current;
@@ -194,7 +196,7 @@ void Regex::compile()
     if(end_count != 0)
     {
         *current = new State();
-        for(int i=0; i<end_count; i++)
+        for(size_t i=0; i<end_count; i++)
             *end[i] = *current;
         current = &((*current) -> next1);
     }
@@ -346,7 +348,7 @@ void Regex::groupDFA()
     if(end_count != 0)
     {
         *current = new State();
-        for(int i=0; i<end_count; i++)
+        for(size_t i=0; i<end_count; i++)
             *end[i] = *current;
         current = &((*current) -> next1);
     }
@@ -362,6 +364,11 @@ void Regex::groupDFA()
 
 void Regex::splitDFA(State** head, State*** end, size_t& end_count)
 {
+    if(head == current)
+    {
+        re_compile = false;
+        return;
+    }
     if(end_count == MAX_OR)
     {
         re_compile = false;

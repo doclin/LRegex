@@ -26,6 +26,19 @@ int main()
     const char* s = "abc[";
     const char* t = "abc(";
     const char* u = "abc)";
+    const char* super = ".* .* .* .* .*";
+
+    const char* mgt = "abaabbac";
+    const char* mgf = "abacc";
+    const char* mht = "cdex)";
+    const char* mhf = "B";
+    const char* mit = "3s#*&\\\\\\\\\\";
+    const char* mif = "3ss\\\\";
+    const char* mjt = "bcccc555srf";
+    const char* mjf = "";
+    const char* mlt = "ababccabc";
+    const char* mlf = "cabbc";
+    const char* msuper = "a sd ce 2 33 5 ^*( ) KG & st";
 
     Regex ra(a);
     Regex rb(b);
@@ -48,28 +61,44 @@ int main()
     Regex rs(s);
     Regex rt(t);
     Regex ru(u);
+    Regex rsuper(super);
 
-    cout << ra.is_success() << endl;
-    cout << rb.is_success() << endl;
-    cout << rc.is_success() << endl;
-    cout << rd.is_success() << endl;
-    cout << re.is_success() << endl;
-    cout << rf.is_success() << endl;
-    cout << rg.is_success() << endl;
-    cout << rh.is_success() << endl;
-    cout << ri.is_success() << endl;
-    cout << rj.is_success() << endl;
-    cout << rk.is_success() << endl;
-    cout << rl.is_success() << endl;
-    cout << rm.is_success() << endl;
-    cout << rn.is_success() << endl;
-    cout << ro.is_success() << endl;
-    cout << rp.is_success() << endl;
-    cout << rq.is_success() << endl;
-    cout << rr.is_success() << endl;
-    cout << rs.is_success() << endl;
-    cout << rt.is_success() << endl;
-    cout << ru.is_success() << endl;
+    cout << ra.is_success();
+    cout << rb.is_success();
+    cout << rc.is_success();
+    cout << rd.is_success();
+    cout << re.is_success();
+    cout << rf.is_success();
+    cout << rg.is_success();
+    cout << rh.is_success();
+    cout << ri.is_success();
+    cout << rj.is_success();
+    cout << rk.is_success();
+    cout << rl.is_success();
+    cout << rm.is_success();
+    cout << rn.is_success();
+    cout << ro.is_success();
+    cout << rp.is_success();
+    cout << rq.is_success();
+    cout << rr.is_success();
+    cout << rs.is_success();
+    cout << rt.is_success();
+    cout << ru.is_success();
+    cout << rsuper.is_success() << endl;
+
+    cout << rg.match(mgt);
+    cout << rg.match(mgf);
+    cout << rh.match(mht);
+    cout << rh.match(mhf);
+    cout << ri.match(mit);
+    cout << ri.match(mif);
+    cout << rj.match(mjt);
+    cout << rj.match(mjf);
+    cout << rl.match(mlt);
+    cout << rl.match(mlf);
+    cout << rsuper.match(msuper) << endl;
+
+
 
     return 0;
 }

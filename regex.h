@@ -42,6 +42,7 @@ public:
     Regex();
     Regex(const char* r);
     bool match(const char* str);
+    bool slow_match(const char* str);
     bool is_success() { return re_compile; };
     ~Regex();
 private:
