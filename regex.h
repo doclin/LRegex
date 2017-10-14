@@ -53,6 +53,7 @@ private:
     bool re_compile;
     void traversal(State* s);
     void traversal(State* s, State** a, size_t& i);
+    void traversal(State* s, const char* str, size_t& i, bool& r);
     //
     void compile();
     void speDFA();

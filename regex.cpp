@@ -8,6 +8,38 @@ Regex::Regex(const char* r)
     compile();
 }
 
+bool Regex::slow_match(const char* str)
+{
+    size_t stri = 0;
+    bool result = false;
+    traversal(DFA, str, stri, result);
+}
+
+void Regex::traversal(State* s, const char* str, size_t& i, bool& r)
+{
+    if(r)
+        return;
+    if(s->flag == 1100)
+    {
+        if(s->next1 != NULL)
+            traversal(s->next1, str, i, r);
+        if(s->next2 != NULL)
+            traversal(s->next2, str, i, r);
+    }
+    else
+    {
+        if(is_match(str[i], s))
+        {
+            i++;
+            if(s->next1 != NULL)
+                traversal(s->next1, str, i, r);
+            if(s->next2 != NULL)
+                traversal(s->next2, str, i, r);
+        }
+    }
+
+}
+
 bool Regex::match(const char* str)
 {
     if(str[0] == '\0')
