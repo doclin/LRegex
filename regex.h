@@ -4,6 +4,7 @@
 #include <iostream>
 
 const size_t MAX_OR = 16;
+const size_t MAX_STATE = 512;
 
 /*
 flag:
@@ -53,7 +54,7 @@ private:
     bool re_compile;
     void traversal(State* s);
     void traversal(State* s, State** a, size_t& i);
-    void traversal(State* s, const char* str, size_t& i, bool& r);
+    void traversal(State* s, const char* str, size_t i, bool& r);
     //
     void compile();
     void speDFA();

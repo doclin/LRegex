@@ -26,7 +26,9 @@ int main()
     const char* s = "abc[";
     const char* t = "abc(";
     const char* u = "abc)";
-    const char* super = ".* .* .* .* .*";
+    const char* super = "a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaa";
+    const char* super1 = "a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
 
     const char* mgt = "abaabbac";
     const char* mgf = "abacc";
@@ -38,7 +40,9 @@ int main()
     const char* mjf = "";
     const char* mlt = "ababccabc";
     const char* mlf = "cabbc";
-    const char* msuper = "a sd ce 2 33 5 ^*( ) KG & st";
+    const char* msuper = "aaaaaaaaaaaaaaaaaaaaaa";
+    const char* msuper1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
 
     Regex ra(a);
     Regex rb(b);
@@ -62,6 +66,7 @@ int main()
     Regex rt(t);
     Regex ru(u);
     Regex rsuper(super);
+    Regex rsuper1(super1);
 
     cout << ra.is_success();
     cout << rb.is_success();
@@ -84,7 +89,8 @@ int main()
     cout << rs.is_success();
     cout << rt.is_success();
     cout << ru.is_success();
-    cout << rsuper.is_success() << endl;
+    cout << rsuper.is_success();
+    cout << rsuper1.is_success() << endl;
 
     cout << rg.match(mgt);
     cout << rg.match(mgf);
@@ -96,7 +102,21 @@ int main()
     cout << rj.match(mjf);
     cout << rl.match(mlt);
     cout << rl.match(mlf);
-    cout << rsuper.match(msuper) << endl;
+    cout << rsuper.match(msuper);
+    cout << rsuper1.match(msuper1) << endl;
+
+    cout << rg.slow_match(mgt);
+    cout << rg.slow_match(mgf);
+    cout << rh.slow_match(mht);
+    cout << rh.slow_match(mhf);
+    cout << ri.slow_match(mit);
+    cout << ri.slow_match(mif);
+    cout << rj.slow_match(mjt);
+    cout << rj.slow_match(mjf);
+    cout << rl.slow_match(mlt);
+    cout << rl.slow_match(mlf);
+    cout << rsuper.slow_match(msuper);
+    //cout << rsuper1.slow_match(msuper1) << endl;
 
 
 

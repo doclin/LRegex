@@ -10,15 +10,24 @@ Regex::Regex(const char* r)
 
 bool Regex::slow_match(const char* str)
 {
+    if(str[0] == '\0')
+        return false;
     size_t stri = 0;
     bool result = false;
     traversal(DFA, str, stri, result);
+
+    return result;
 }
 
-void Regex::traversal(State* s, const char* str, size_t& i, bool& r)
+void Regex::traversal(State* s, const char* str, size_t i, bool& r)
 {
     if(r)
         return;
+    if(str[i]=='\0' && s->flag==777)
+    {
+        r = true;
+        return;
+    }
     if(s->flag == 1100)
     {
         if(s->next1 != NULL)
@@ -26,7 +35,7 @@ void Regex::traversal(State* s, const char* str, size_t& i, bool& r)
         if(s->next2 != NULL)
             traversal(s->next2, str, i, r);
     }
-    else
+    else if(str[i] != '\0')
     {
         if(is_match(str[i], s))
         {
@@ -49,8 +58,8 @@ bool Regex::match(const char* str)
     
     int rounds = 1;
     size_t stri = 0;
-    State* storage1[256];
-    State* storage2[256];
+    State* storage1[MAX_STATE];
+    State* storage2[MAX_STATE];
     State** p1 = storage1;
     State** p2 = storage2;
     State** tmp;
@@ -187,7 +196,7 @@ void Regex::traversal(State* s, State** a, size_t& i)
 
 Regex::~Regex()
 {
-    State* delete_array[256];
+    State* delete_array[MAX_STATE];
     size_t num = 0;
     traversal(DFA, delete_array, num);
     for(size_t j=0; j<num; j++)
