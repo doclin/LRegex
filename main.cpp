@@ -103,7 +103,7 @@ int main()
     cout << rl.match(mlt);
     cout << rl.match(mlf);
     cout << rsuper.match(msuper);
-    cout << rsuper1.match(msuper1) << endl;
+    cout << rsuper1.match(msuper1) << endl;         // ~n ms
 
     cout << rg.slow_match(mgt);
     cout << rg.slow_match(mgf);
@@ -115,10 +115,16 @@ int main()
     cout << rj.slow_match(mjf);
     cout << rl.slow_match(mlt);
     cout << rl.slow_match(mlf);
-    cout << rsuper.slow_match(msuper);
-    //cout << rsuper1.slow_match(msuper1) << endl;
+    cout << rsuper.slow_match(msuper);              // ~5 s
+    cout << rsuper1.slow_match(msuper1) << endl;    // ~2 min
 
 
+    /*
+    out:
+    11111111111100000000011
+    101010101011
+    101010101011
+    */
 
     return 0;
 }
